@@ -258,7 +258,7 @@ const Setting = ({
   };
 
   return (
-    <SafeAreaView style={ss.root}>
+    <SafeAreaView style={ss.root} edges={['top', 'left', 'right']}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={ss.scroll} keyboardShouldPersistTaps="handled">
 

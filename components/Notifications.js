@@ -1,63 +1,57 @@
 /**
- * notifications.js
- * ─────────────────
- * Safe wrapper around expo-notifications.
- * Works in both Expo Go (SDK 53+, where push is removed) and dev/production builds.
- * All calls are try/catch guarded so the app never crashes.
+ * Notifications.js
+ * Safe wrapper for expo-notifications
  */
 
-let Notifications = null;
+import * as Notifications from "expo-notifications";
+import { Platform } from "react-native";
 
-// Try to load expo-notifications — it may be unavailable or restricted in Expo Go SDK 53+
-try {
-  Notifications = require('expo-notifications');
+// Notification behavior
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
 
-  // Only set handler if the API exists
-  if (Notifications?.setNotificationHandler) {
-    Notifications.setNotificationHandler({
-      handleNotification: async () => ({
-        shouldShowAlert: true,
-        shouldPlaySound: true,
-        shouldSetBadge: false,
-      }),
-    });
-  }
-} catch (e) {
-  console.warn('[notifications] expo-notifications not available:', e.message);
-}
-
-/**
- * Request notification permission safely.
- * Returns true if granted, false otherwise.
- */
+// ─────────────────────────────────────────────
+// Request notification permissions
+// ─────────────────────────────────────────────
 export async function requestPermissions() {
   try {
-    if (!Notifications?.requestPermissionsAsync) return false;
     const { status } = await Notifications.requestPermissionsAsync();
-    return status === 'granted';
-  } catch (e) {
-    console.warn('[notifications] requestPermissions failed:', e.message);
+
+    if (status !== "granted") {
+      console.log("Notification permission denied");
+      return false;
+    }
+
+    console.log("Notification permission granted");
+    return true;
+
+  } catch (error) {
+    console.log("Permission error:", error);
     return false;
   }
 }
 
-/**
- * Schedule an immediate local notification safely.
- * Silently ignores errors (e.g. Expo Go SDK 53 restriction).
- */
+// ─────────────────────────────────────────────
+// Send notification instantly
+// ─────────────────────────────────────────────
 export async function scheduleNotification({ title, body, data }) {
   try {
-    if (!Notifications?.scheduleNotificationAsync) {
-      console.warn('[notifications] scheduleNotificationAsync not available (Expo Go SDK 53+). Use a dev build for notifications.');
-      return;
-    }
+
     await Notifications.scheduleNotificationAsync({
-      content: { title, body, data },
-      trigger: null,
+      content: {
+        title: title,
+        body: body,
+        data: data || {},
+      },
+      trigger: null, // show immediately
     });
-  } catch (e) {
-    console.warn('[notifications] scheduleNotification failed:', e.message);
+
+  } catch (error) {
+    console.log("Notification error:", error);
   }
 }
-
-export default Notifications;
