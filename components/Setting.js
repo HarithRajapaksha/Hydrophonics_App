@@ -4,17 +4,17 @@ import {
   Switch, TextInput, TouchableOpacity,
   Platform, Alert, KeyboardAvoidingView,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+
 import { requestPermissions, scheduleNotification } from './Notifications';
 
 // ─── Default threshold values ─────────────────────────────────────────────────
 export const DEFAULT_THRESHOLDS = {
-  pH:         { label: 'pH Level',          unit: 'pH',  icon: '🧪', color: '#C39BD3', min: 5.5,  max: 6.5  },
-  TDS:        { label: 'TDS',               unit: 'ppm', icon: '⚗️', color: '#F0B27A', min: 500,  max: 900  },
-  waterTemp:  { label: 'Water Temperature', unit: '°C',  icon: '🌊', color: '#45B7D1', min: 20,   max: 30   },
-  airTemp:    { label: 'Air Temperature',   unit: '°C',  icon: '🌡️', color: '#FF6B6B', min: 25,   max: 35   },
-  humidity:   { label: 'Humidity',          unit: '%',   icon: '💧', color: '#4ECDC4', min: 50,   max: 70   },
-  waterLevel: { label: 'Water Level',       unit: 'cm',  icon: '📏', color: '#96CEB4', min: 10,   max: null },
+  pH:         { label: 'pH මට්ටම',           unit: 'pH',  icon: '🧪', color: '#C39BD3', min: 5.5,  max: 6.5  },
+  TDS:        { label: 'TDS',                 unit: 'ppm', icon: '⚗️', color: '#F0B27A', min: 500,  max: 900  },
+  waterTemp:  { label: 'ජල උෂ්ණත්වය',        unit: '°C',  icon: '🌊', color: '#45B7D1', min: 20,   max: 30   },
+  airTemp:    { label: 'වායු උෂ්ණත්වය',       unit: '°C',  icon: '🌡️', color: '#FF6B6B', min: 25,   max: 35   },
+  humidity:   { label: 'ආර්ද්‍රතාවය',          unit: '%',   icon: '💧', color: '#4ECDC4', min: 50,   max: 70   },
+  waterLevel: { label: 'ජල මට්ටම',            unit: 'cm',  icon: '📏', color: '#96CEB4', min: 10,   max: null },
 };
 
 // ─── Debounce tracker: prevent re-firing same alert every 5s poll ────────────
@@ -37,11 +37,11 @@ export async function checkAndNotify(sensorKey, value, thresholds, alertsEnabled
 
   if (limit.min !== null && limit.min !== undefined && numVal < limit.min) {
     breached  = true;
-    direction = `dropped BELOW minimum (${limit.min} ${config.unit})`;
+    direction = `අවම සීමාවට වඩා අඩුයි (${limit.min} ${config.unit})`;
     alertKey  = `${sensorKey}_low`;
   } else if (limit.max !== null && limit.max !== undefined && numVal > limit.max) {
     breached  = true;
-    direction = `exceeded ABOVE maximum (${limit.max} ${config.unit})`;
+    direction = `උපරිම සීමාවට වඩා වැඩියි (${limit.max} ${config.unit})`;
     alertKey  = `${sensorKey}_high`;
   }
 
@@ -50,8 +50,8 @@ export async function checkAndNotify(sensorKey, value, thresholds, alertsEnabled
     alertedState[alertKey] = true;
 
     await scheduleNotification({
-      title: `⚠️ ${config.icon} ${config.label} Alert!`,
-      body:  `Reading ${numVal.toFixed(1)} ${config.unit} has ${direction}.\nSafe range: ${limit.min ?? '—'} – ${limit.max ?? '∞'} ${config.unit}`,
+      title: `⚠️ ${config.icon} ${config.label} අනතුරු ඇඟවීම!`,
+      body:  `කියවීම ${numVal.toFixed(1)} ${config.unit} — ${direction}.\nආරක්ෂිත පරාසය: ${limit.min ?? '—'} – ${limit.max ?? '∞'} ${config.unit}`,
       data:  { sensorKey, value: numVal },
     });
   } else {
@@ -258,7 +258,7 @@ const Setting = ({
   };
 
   return (
-    <SafeAreaView style={ss.root} edges={['top', 'left', 'right']}>
+    <View style={ss.root}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={ss.scroll} keyboardShouldPersistTaps="handled">
 
@@ -390,7 +390,7 @@ const Setting = ({
           <Text style={ss.footer}>Hydro Monitor  •  Built with React Native</Text>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 };
 
