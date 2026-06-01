@@ -20,12 +20,12 @@ import { checkAndNotify, DEFAULT_THRESHOLDS } from './Setting';
 const REFRESH_INTERVAL = 5000;
 
 const SENSORS = [
-  { key: 'airTemp',    label: 'Air Temp',    unit: '°C',  icon: '🌡️', color: '#FF6B6B', bg: '#FFF0F0' },
-  { key: 'humidity',   label: 'Humidity',    unit: '%',   icon: '💧', color: '#4ECDC4', bg: '#F0FFFE' },
-  { key: 'waterTemp',  label: 'Water Temp',  unit: '°C',  icon: '🌊', color: '#45B7D1', bg: '#F0F8FF' },
-  { key: 'waterLevel', label: 'Water Level', unit: 'cm',  icon: '📏', color: '#96CEB4', bg: '#F0FFF4' },
-  { key: 'pH',         label: 'pH Level',    unit: 'pH',  icon: '🧪', color: '#C39BD3', bg: '#FAF0FF' },
-  { key: 'TDS',        label: 'TDS',         unit: 'ppm', icon: '⚗️', color: '#F0B27A', bg: '#FFF8F0' },
+  { key: 'airTemp', label: 'Air Temp', unit: '°C', icon: '🌡️', color: '#FF6B6B', bg: '#FFF0F0' },
+  { key: 'humidity', label: 'Humidity', unit: '%', icon: '💧', color: '#4ECDC4', bg: '#F0FFFE' },
+  { key: 'waterTemp', label: 'Water Temp', unit: '°C', icon: '🌊', color: '#45B7D1', bg: '#F0F8FF' },
+  { key: 'waterLevel', label: 'Water Level', unit: 'cm', icon: '📏', color: '#96CEB4', bg: '#F0FFF4' },
+  { key: 'pH', label: 'pH Level', unit: 'pH', icon: '🧪', color: '#C39BD3', bg: '#FAF0FF' },
+  { key: 'TDS', label: 'TDS', unit: 'ppm', icon: '⚗️', color: '#F0B27A', bg: '#FFF8F0' },
 ];
 
 const formatTimestamp = (ts) => {
@@ -38,18 +38,18 @@ const formatTimestamp = (ts) => {
 
 // ─── Pulse dot ────────────────────────────────────────────────────────────────
 const PulseDot = ({ color = '#4ECDC4' }) => {
-  const scale   = useRef(new Animated.Value(1)).current;
+  const scale = useRef(new Animated.Value(1)).current;
   const opacity = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     const anim = Animated.loop(
       Animated.sequence([
         Animated.parallel([
-          Animated.timing(scale,   { toValue: 1.8, duration: 700, useNativeDriver: true }),
-          Animated.timing(opacity, { toValue: 0,   duration: 700, useNativeDriver: true }),
+          Animated.timing(scale, { toValue: 1.8, duration: 700, useNativeDriver: true }),
+          Animated.timing(opacity, { toValue: 0, duration: 700, useNativeDriver: true }),
         ]),
         Animated.parallel([
-          Animated.timing(scale,   { toValue: 1, duration: 0, useNativeDriver: true }),
+          Animated.timing(scale, { toValue: 1, duration: 0, useNativeDriver: true }),
           Animated.timing(opacity, { toValue: 1, duration: 0, useNativeDriver: true }),
         ]),
       ])
@@ -78,7 +78,7 @@ const ThresholdPill = ({ sensorKey, value, thresholds }) => {
   if (!limit) return null;
 
   const num = Number(value);
-  const tooLow  = limit.min !== null && limit.min !== undefined && num < limit.min;
+  const tooLow = limit.min !== null && limit.min !== undefined && num < limit.min;
   const tooHigh = limit.max !== null && limit.max !== undefined && num > limit.max;
 
   if (!tooLow && !tooHigh) {
@@ -99,14 +99,14 @@ const ThresholdPill = ({ sensorKey, value, thresholds }) => {
 
 // ─── Data card ────────────────────────────────────────────────────────────────
 const DataCard = ({ sensor, value, prevValue, index, thresholds }) => {
-  const fadeAnim  = useRef(new Animated.Value(0)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
   const flashAnim = useRef(new Animated.Value(0)).current;
 
   // Entrance animation
   useEffect(() => {
     Animated.parallel([
-      Animated.timing(fadeAnim,  { toValue: 1, duration: 400, delay: index * 80, useNativeDriver: true }),
+      Animated.timing(fadeAnim, { toValue: 1, duration: 400, delay: index * 80, useNativeDriver: true }),
       Animated.timing(slideAnim, { toValue: 0, duration: 400, delay: index * 80, useNativeDriver: true }),
     ]).start();
   }, []);
@@ -124,16 +124,16 @@ const DataCard = ({ sensor, value, prevValue, index, thresholds }) => {
   }, [value]);
 
   const flashBg = flashAnim.interpolate({
-    inputRange:  [0, 1],
+    inputRange: [0, 1],
     outputRange: ['rgba(0,0,0,0)', sensor.color + '50'],
   });
 
-  const changed   = prevValue !== null && prevValue !== undefined && prevValue !== value;
+  const changed = prevValue !== null && prevValue !== undefined && prevValue !== value;
   const increased = changed && Number(value) > Number(prevValue);
 
   // Check if value is out of threshold range for card border highlight
   const limit = thresholds?.[sensor.key];
-  const num   = Number(value);
+  const num = Number(value);
   const outOfRange = limit && value !== undefined && (
     (limit.min !== null && limit.min !== undefined && num < limit.min) ||
     (limit.max !== null && limit.max !== undefined && num > limit.max)
@@ -196,17 +196,17 @@ const DataCard = ({ sensor, value, prevValue, index, thresholds }) => {
 // Props: thresholds (from App.js), alertsEnabled (optional, defaults true)
 const HomePage = ({ thresholds, alertsEnabled = true }) => {
   const [currentData, setCurrentData] = useState(null);
-  const [prevData,    setPrevData]    = useState(null);
+  const [prevData, setPrevData] = useState(null);
   const [lastUpdated, setLastUpdated] = useState('');
-  const [loading,     setLoading]     = useState(true);
-  const [refreshing,  setRefreshing]  = useState(false);
-  const [error,       setError]       = useState(null);
-  const [countdown,   setCountdown]   = useState(0);
-  const [fetchCount,  setFetchCount]  = useState(0);
-  const [isLive,      setIsLive]      = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState(null);
+  const [countdown, setCountdown] = useState(0);
+  const [fetchCount, setFetchCount] = useState(0);
+  const [isLive, setIsLive] = useState(true);
 
   const countdownRef = useRef(null);
-  const fetchRef     = useRef(null);
+  const fetchRef = useRef(null);
   const liveStartRef = useRef(Date.now());
 
   // Use passed-in thresholds, or fall back to defaults
@@ -214,9 +214,7 @@ const HomePage = ({ thresholds, alertsEnabled = true }) => {
     Object.entries(DEFAULT_THRESHOLDS).map(([k, v]) => [k, { min: v.min, max: v.max }])
   );
 
-  const API_URL = Platform.OS === 'android'
-    ? 'http://10.0.2.2:5000/getdata'
-    : 'http://localhost:5000/getdata';
+  const API_URL = 'http://44.203.44.164/getdata';
 
   const fetchData = useCallback(async (isManual = false) => {
     try {
@@ -379,13 +377,13 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: '#F0F4F8' },
 
   loadingScreen: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F0F4F8' },
-  loadingText:   { marginTop: 12, fontSize: 15, color: '#7F8C8D', fontWeight: '500' },
+  loadingText: { marginTop: 12, fontSize: 15, color: '#7F8C8D', fontWeight: '500' },
 
   scroll: { padding: 16, paddingBottom: 36 },
 
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 },
   headerTitle: { fontSize: 26, fontWeight: '800', color: '#1A252F', letterSpacing: -0.5 },
-  headerSub:   { fontSize: 11, color: '#95A5A6', marginTop: 3 },
+  headerSub: { fontSize: 11, color: '#95A5A6', marginTop: 3 },
 
   liveBtn: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
@@ -393,7 +391,7 @@ const styles = StyleSheet.create({
     borderRadius: 20, borderWidth: 1.5,
   },
   liveBtnText: { fontSize: 11, fontWeight: '800', letterSpacing: 1 },
-  dot:         { width: 8, height: 8, borderRadius: 4 },
+  dot: { width: 8, height: 8, borderRadius: 4 },
 
   statusBar: {
     flexDirection: 'row', alignItems: 'center',
@@ -402,12 +400,12 @@ const styles = StyleSheet.create({
     shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.06, shadowRadius: 4, elevation: 2,
   },
-  statusItem:    { flex: 1, alignItems: 'center' },
-  statusVal:     { fontSize: 17, fontWeight: '800', color: '#2C3E50' },
-  statusLbl:     { fontSize: 9, color: '#95A5A6', marginTop: 3, letterSpacing: 0.8, fontWeight: '600' },
+  statusItem: { flex: 1, alignItems: 'center' },
+  statusVal: { fontSize: 17, fontWeight: '800', color: '#2C3E50' },
+  statusLbl: { fontSize: 9, color: '#95A5A6', marginTop: 3, letterSpacing: 0.8, fontWeight: '600' },
   statusDivider: { width: 1, height: 32, backgroundColor: '#ECF0F1', marginHorizontal: 4 },
   progressTrack: { width: '100%', height: 6, backgroundColor: '#ECF0F1', borderRadius: 3, overflow: 'hidden' },
-  progressFill:  { height: '100%', backgroundColor: '#45B7D1', borderRadius: 3 },
+  progressFill: { height: '100%', backgroundColor: '#45B7D1', borderRadius: 3 },
 
   grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
 
@@ -417,17 +415,17 @@ const styles = StyleSheet.create({
     shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.07, shadowRadius: 6, elevation: 3,
   },
-  cardTop:      { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
-  cardIcon:     { fontSize: 15, marginRight: 5 },
-  cardLabel:    { fontSize: 11, fontWeight: '700', letterSpacing: 0.4, flex: 1 },
-  changeBadge:  { fontSize: 13, fontWeight: '800' },
+  cardTop: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
+  cardIcon: { fontSize: 15, marginRight: 5 },
+  cardLabel: { fontSize: 11, fontWeight: '700', letterSpacing: 0.4, flex: 1 },
+  changeBadge: { fontSize: 13, fontWeight: '800' },
 
   cardValueRow: { flexDirection: 'row', alignItems: 'baseline', marginBottom: 4 },
-  cardValue:    { fontSize: 28, fontWeight: '900', letterSpacing: -1 },
-  cardUnit:     { fontSize: 12, fontWeight: '600', marginLeft: 3 },
-  prevValue:    { fontSize: 10, color: '#95A5A6', marginBottom: 4, fontStyle: 'italic' },
+  cardValue: { fontSize: 28, fontWeight: '900', letterSpacing: -1 },
+  cardUnit: { fontSize: 12, fontWeight: '600', marginLeft: 3 },
+  prevValue: { fontSize: 10, color: '#95A5A6', marginBottom: 4, fontStyle: 'italic' },
 
-  rangeLabel:   { fontSize: 9, color: '#B0BEC5', marginBottom: 4, fontStyle: 'italic' },
+  rangeLabel: { fontSize: 9, color: '#B0BEC5', marginBottom: 4, fontStyle: 'italic' },
 
   pill: {
     alignSelf: 'flex-start', borderRadius: 6, borderWidth: 1,
@@ -435,7 +433,7 @@ const styles = StyleSheet.create({
   },
   pillTxt: { fontSize: 9, fontWeight: '800', letterSpacing: 0.5 },
 
-  cardBar:     { height: 4, borderRadius: 2, overflow: 'hidden', marginTop: 4 },
+  cardBar: { height: 4, borderRadius: 2, overflow: 'hidden', marginTop: 4 },
   cardBarFill: { height: '100%', borderRadius: 2 },
 
   errorBox: {
@@ -445,7 +443,7 @@ const styles = StyleSheet.create({
   },
   errorIcon: { fontSize: 20 },
   errorText: { flex: 1, color: '#C62828', fontSize: 13 },
-  retryBtn:  { backgroundColor: '#C62828', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 6 },
+  retryBtn: { backgroundColor: '#C62828', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 6 },
   retryText: { color: '#fff', fontSize: 12, fontWeight: '700' },
 
   footer: { textAlign: 'center', color: '#BDC3C7', fontSize: 11, marginTop: 8 },

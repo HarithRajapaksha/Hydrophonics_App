@@ -19,21 +19,21 @@ const REFRESH_INTERVAL = 5000;
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
 const SENSORS = [
-  { key: 'airTemp',    label: 'Air Temperature',  unit: '°C',  color: '#FF6B6B', icon: '🌡️' },
-  { key: 'humidity',   label: 'Humidity',          unit: '%',   color: '#4ECDC4', icon: '💧' },
-  { key: 'waterTemp',  label: 'Water Temperature', unit: '°C',  color: '#45B7D1', icon: '🌊' },
-  { key: 'waterLevel', label: 'Water Level',       unit: 'cm',  color: '#96CEB4', icon: '📏' },
-  { key: 'pH',         label: 'pH Level',          unit: 'pH',  color: '#C39BD3', icon: '🧪' },
-  { key: 'TDS',        label: 'TDS',               unit: 'ppm', color: '#F0B27A', icon: '⚗️' },
+  { key: 'airTemp', label: 'Air Temperature', unit: '°C', color: '#FF6B6B', icon: '🌡️' },
+  { key: 'humidity', label: 'Humidity', unit: '%', color: '#4ECDC4', icon: '💧' },
+  { key: 'waterTemp', label: 'Water Temperature', unit: '°C', color: '#45B7D1', icon: '🌊' },
+  { key: 'waterLevel', label: 'Water Level', unit: 'cm', color: '#96CEB4', icon: '📏' },
+  { key: 'pH', label: 'pH Level', unit: 'pH', color: '#C39BD3', icon: '🧪' },
+  { key: 'TDS', label: 'TDS', unit: 'ppm', color: '#F0B27A', icon: '⚗️' },
 ];
 
 // Point-count based windows — works with any timestamps, old or new
 const WINDOWS = [
-  { label: 'Last 10',  value: 10 },
-  { label: 'Last 20',  value: 20 },
-  { label: 'Last 50',  value: 50 },
+  { label: 'Last 10', value: 10 },
+  { label: 'Last 20', value: 20 },
+  { label: 'Last 50', value: 50 },
   { label: 'Last 100', value: 100 },
-  { label: 'All',      value: Infinity },
+  { label: 'All', value: Infinity },
 ];
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
@@ -76,9 +76,9 @@ const SensorChart = ({ sensor, dataHistory }) => {
   );
 
   const currentVal = values[values.length - 1];
-  const minVal     = Math.min(...values);
-  const maxVal     = Math.max(...values);
-  const avgVal     = values.reduce((a, b) => a + b, 0) / values.length;
+  const minVal = Math.min(...values);
+  const maxVal = Math.max(...values);
+  const avgVal = values.reduce((a, b) => a + b, 0) / values.length;
 
   const chartData = {
     labels,
@@ -167,19 +167,17 @@ const SensorChart = ({ sensor, dataHistory }) => {
 
 // ─── Main ──────────────────────────────────────────────────────────────────────
 const Statics = () => {
-  const [allData,        setAllData]        = useState({});
-  const [loading,        setLoading]        = useState(true);
-  const [refreshing,     setRefreshing]     = useState(false);
-  const [error,          setError]          = useState(null);
-  const [isLive,         setIsLive]         = useState(true);
-  const [pointWindow,    setPointWindow]    = useState(WINDOWS[1].value); // last 20
+  const [allData, setAllData] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState(null);
+  const [isLive, setIsLive] = useState(true);
+  const [pointWindow, setPointWindow] = useState(WINDOWS[1].value); // last 20
   const [selectedSensor, setSelectedSensor] = useState(null);             // null = all
 
   const fetchRef = useRef(null);
 
-  const API_URL = Platform.OS === 'android'
-    ? 'http://10.0.2.2:5000/getdata'
-    : 'http://localhost:5000/getdata';
+  const API_URL = 'http://44.203.44.164/getdata';
 
   const fetchData = useCallback(async (isManual = false) => {
     try {
@@ -233,7 +231,7 @@ const Statics = () => {
     ? SENSORS.filter((s) => s.key === selectedSensor)
     : SENSORS;
 
-  const totalReadings  = Object.keys(allData).length;
+  const totalReadings = Object.keys(allData).length;
   const windowReadings = totalReadings > 0 ? buildHistory('airTemp').length : 0;
 
   if (loading) {

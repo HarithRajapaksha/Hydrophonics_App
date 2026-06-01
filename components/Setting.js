@@ -5,7 +5,7 @@ import {
   Platform, Alert, KeyboardAvoidingView,
 } from 'react-native';
 
-import { requestPermissions, scheduleNotification } from './Notifications';
+import { requestPermissions, scheduleNotification, isNotificationMocked } from './Notifications';
 
 // ─── Default threshold values ─────────────────────────────────────────────────
 export const DEFAULT_THRESHOLDS = {
@@ -267,19 +267,26 @@ const Setting = ({
             <Text style={ss.sub}>Hydro Monitor Configuration</Text>
           </View>
 
-          {/* Expo Go warning */}
-          {!notifAvailable && (
-            <View style={ss.warnBox}>
-              <Text style={ss.warnTxt}>
-                ⚠️  Push notifications not available in Expo Go SDK 53+.
-                Use a <Text style={{ fontWeight: '800' }}>development build</Text> to enable them.{'\n'}
-                In-app threshold indicators (red cards) still work on Home screen.
-              </Text>
+          {/* Expo Go warning / fallback status banner */}
+          {isNotificationMocked ? (
+            <View style={[ss.alertBanner, {
+              backgroundColor: isAlertsOn ? '#EBF5FB' : '#FFF0F0',
+              borderColor:     isAlertsOn ? '#3498DB' : '#E74C3C',
+            }]}>
+              <Text style={{ fontSize: 24 }}>{isAlertsOn ? '💡' : '🔕'}</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={[ss.alertBannerTitle, { color: isAlertsOn ? '#2980B9' : '#C0392B' }]}>
+                  Expo Go Alert Fallback: {isAlertsOn ? 'ACTIVE' : 'MUTED'}
+                </Text>
+                <Text style={ss.alertBannerSub}>
+                  {isAlertsOn
+                    ? 'Push notifications are restricted in Android Expo Go. Custom sliding tray notification banners and physical phone vibrations will trigger instead.'
+                    : 'Toggle below to enable custom notification banner and vibration fallbacks.'}
+                </Text>
+              </View>
             </View>
-          )}
-
-          {/* Alert status banner */}
-          {notifAvailable && (
+          ) : (
+            /* Regular Notification Banner */
             <View style={[ss.alertBanner, {
               backgroundColor: isAlertsOn ? '#E8FBF8' : '#FFF0F0',
               borderColor:     isAlertsOn ? '#4ECDC4' : '#E74C3C',
@@ -328,9 +335,9 @@ const Setting = ({
               <View style={{ flex: 1 }}>
                 <Text style={ss.toggleLbl}>🔔  Threshold Alerts</Text>
                 <Text style={ss.toggleSub}>
-                  {notifAvailable
-                    ? 'Push notification when any sensor goes out of range'
-                    : 'In-app indicators only (Expo Go limitation)'}
+                  {isNotificationMocked
+                    ? 'Custom sliding banner & vibration (Expo Go)'
+                    : 'Push notification when any sensor goes out of range'}
                 </Text>
               </View>
               <Switch
@@ -339,7 +346,7 @@ const Setting = ({
                 trackColor={{ false: '#ECF0F1', true: '#4ECDC4' }}
                 thumbColor="#FFFFFF"
                 ios_backgroundColor="#ECF0F1"
-                disabled={!notifAvailable}
+                disabled={false}
               />
             </View>
           </View>
